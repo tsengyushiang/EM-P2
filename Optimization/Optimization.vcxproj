@@ -141,6 +141,8 @@
     <ClCompile Include="Equtaion.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MyForm.cpp" />
+    <ClCompile Include="Term.cpp" />
+    <ClCompile Include="Variable.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>

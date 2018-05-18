@@ -76,24 +76,52 @@ public:
 };
 
 
+class ValueforVar
+{
+public:
+	// variable name
+	std::string name;
+	// value
+	double value;
+	// interval
+	double min;
+	double max;
+	ValueforVar(std::string, double, double, double);
+};
+
+
 class Variable
 {
 public:
-
+	std::string str;
 	std::string name;
 	double exp;
 	Variable *next;
+
+	Variable();
 	Variable(std::string);
+	Variable(Variable*);
+	~Variable();
+
+
+	double calc(std::vector<ValueforVar> vars);
 };
 
 class Term
 {
 public:
 
+	std::string str;
 	double coef;
 	Variable *vars;
 	Term *next;
-	Term(std::vector<std::string>&);
+
+	Term();
+	Term(std::string );
+	Term(Term*);
+	~Term();
+
+	double calc(std::vector<ValueforVar> vars);
 };
 
 
@@ -102,20 +130,21 @@ class Equation
 public:
 	std::string EquationString;
 	int EquationIndex;
+	Term* EqTerms;
+
 	Equation();
 	Equation(std::string, int);
-	Term* EqTerms;
+	Equation(Equation*);
+	~Equation();
+
 	int degree();
+	double calc(std::vector<ValueforVar> vars);
 };
 
 //定義控管資料class
 class DataManager
 {
 private:
-	//儲存方程式資料
-	std::vector<Equation> Equations;
-	//紀錄向量ID，用於控管
-	int EquationIndex;
 	//紀錄檔案路徑名稱
 	std::string FileName;
 public:
@@ -132,11 +161,22 @@ public:
 	//紀錄目前選擇的多項式
 	int currentMethod;
 
+	std::vector<ValueforVar> VarInfo;
+	
+	//儲存多項式資料
+	std::vector<Equation> Equations;
+	//紀錄多項式ID，用於控管
+	int EquationIndex;
+
 	DataManager();
-	//讀取向量資料
+	//讀取多項式資料
 	bool LoadEquationData();
-	//取得向量資料
-	std::vector<Equation>& GetEquations();
 	//設置檔案路徑名稱
 	void SetFileName(std::string fileName);
+
+	 
 };
+//one-dimension search Use Ratio=0.618
+double goldenSection(double, double,double,Equation&);
+std::string Powell(std::vector<ValueforVar>&,Equation&);
+std::string SteepDescent(std::vector<ValueforVar>&, Equation&);
