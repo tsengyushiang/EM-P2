@@ -130,9 +130,6 @@ std::vector<SubValueintoEq> Equation::goldenSection()
 	sort(min.begin(), min.end());
 	sort(max.begin(), max.end());
 
-	if (min.empty())
-		std::cout << "FK";
-
 	double a = min.back();
 	double b = max.front();
 
