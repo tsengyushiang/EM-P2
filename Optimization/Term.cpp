@@ -10,7 +10,7 @@ Term::Term()
 
 Term::Term(std::string EqString)
 {	
-	//--------------------------------------------------------根據"+"的位置將字串分成各個term並存起來
+	//--------------------------------------------------------
 	std::string firstTerm;
 
 	for (int index=0;index<EqString.size();index++)
@@ -26,7 +26,7 @@ Term::Term(std::string EqString)
 	}
 	EqString.erase(EqString.begin(), EqString.begin() + firstTerm.size());
 	//----------------------------------------------------------
-
+	str = firstTerm;
 	//----------------------------讀去coef
 	std::stringstream temp;
 	int index = 0;
@@ -77,11 +77,17 @@ Term::Term(Term* t)
 {
 	str = t->str;
 	coef = t->coef;
-	vars = new Variable(t->vars);
-	next = new Term(t->str);
+	if (t->vars != NULL)
+		vars = new Variable(t->vars->str);
+	else
+		vars = NULL;
+	if (t->next != NULL)
+		next = new Term(t->next->str);
+	else
+		next = NULL;
 }
 
-double Term::calc(std::vector<ValueforVar> v)
+double Term::calc(std::vector<SubValueintoEq> v)
 {
 	double sum = 0;
 	sum += vars->calc(v)*coef;
@@ -90,4 +96,13 @@ double Term::calc(std::vector<ValueforVar> v)
 		sum += next->calc(v);
 
 	return sum;
+}
+
+Term& Term::operator=(Term& t)
+{
+	str = t.str;
+	coef = t.coef;
+	vars = new Variable(t.vars);
+	next = new Term(t.str);
+	return *this;
 }

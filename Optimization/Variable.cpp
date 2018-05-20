@@ -11,14 +11,16 @@ Variable::Variable()
 
 Variable::Variable(Variable* v)
 {
+	str = v->str;
 	name = v->name;
 	exp = v->exp;
-	next = new Variable(v->next->str);
-
+	if (v->next != NULL)
+		next = new Variable(v->next->str);
+	else
+		next = NULL;
 }
 Variable::Variable(std::string vars)
 {
-	// ±`¼Æ¶µ
 	str = vars;
 	if (vars.empty())
 	{
@@ -67,11 +69,11 @@ Variable::Variable(std::string vars)
 	next = new Variable(vars);
 }
 
-double Variable::calc(std::vector<ValueforVar> vars)
+double Variable::calc(std::vector<SubValueintoEq> vars)
 {
 	double sum = 1;
-	for (ValueforVar c : vars)
-		if (name == c.name)
+	for (SubValueintoEq c : vars)
+		if ((name == c.name)||(c.name=="*"))
 			sum *= powl(c.value, exp);
 
 	if (next)
@@ -85,4 +87,12 @@ Variable::~Variable()
 	if(next!=NULL)
 		delete next;
 	next = NULL;
+}
+
+Variable& Variable::operator=(Variable& v)
+{
+	name = v.name;
+	exp = v.exp;
+	next = new Variable(v.next);
+	return *this;
 }

@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include <set>
+#include<algorithm>
 
 class Vector
 {
@@ -75,20 +76,43 @@ public:
 	friend Matrix LeastSquare(Matrix&, Matrix&);
 };
 
-
-class ValueforVar
+class SubValueintoEq
 {
 public:
 	// variable name
 	std::string name;
 	// value
 	double value;
+
+	SubValueintoEq() :name(""), value(0) {}
+	SubValueintoEq(std::string n, double v) :name(n), value(v) {}
+};
+
+class SubVariableintoEq
+{
+public:
+	// variable name
+	std::string name;
+	// value
+	std::string Eq;
+
+	SubVariableintoEq() :name(""), Eq("") {}
+	SubVariableintoEq(std::string n,std::string e) :name(n), Eq(e) {}
+
+};
+
+class Range
+{
+public:
+	// variable name
+	std::string name;
 	// interval
 	double min;
 	double max;
-	ValueforVar(std::string, double, double, double);
-};
 
+	Range() :name(""), min(0), max(0) {}
+	Range(std::string n, double m, double M) :name(n), min(m), max(M) {}
+};
 
 class Variable
 {
@@ -102,9 +126,10 @@ public:
 	Variable(std::string);
 	Variable(Variable*);
 	~Variable();
+	Variable& operator=(Variable&);
 
 
-	double calc(std::vector<ValueforVar> vars);
+	double calc(std::vector<SubValueintoEq> vars);
 };
 
 class Term
@@ -120,10 +145,10 @@ public:
 	Term(std::string );
 	Term(Term*);
 	~Term();
+	Term& operator =(Term&);
 
-	double calc(std::vector<ValueforVar> vars);
+	double calc(std::vector<SubValueintoEq> vars);
 };
-
 
 class Equation
 {
@@ -131,14 +156,23 @@ public:
 	std::string EquationString;
 	int EquationIndex;
 	Term* EqTerms;
+	std::vector<Range> range;
+	std::vector<SubVariableintoEq> domainChange;
+	std::vector<SubVariableintoEq> VariableChange;
 
 	Equation();
-	Equation(std::string, int);
+	Equation(std::string, int=-1);
 	Equation(Equation*);
 	~Equation();
+	Equation& operator=(Equation&);
 
 	int degree();
-	double calc(std::vector<ValueforVar> vars);
+	double calc(std::vector<SubValueintoEq> vars);
+	std::vector<SubValueintoEq> goldenSection();
+	std::string Powell(std::vector<SubValueintoEq>&);
+	std::string SteepDescent(std::vector<SubValueintoEq>&);
+
+
 };
 
 //定義控管資料class
@@ -161,10 +195,10 @@ public:
 	//紀錄目前選擇的多項式
 	int currentMethod;
 
-	std::vector<ValueforVar> VarInfo;
+	std::vector<SubValueintoEq> VarInfo;
 	
 	//儲存多項式資料
-	std::vector<Equation> Equations;
+	std::vector<Equation*> Equations;
 	//紀錄多項式ID，用於控管
 	int EquationIndex;
 
@@ -176,7 +210,3 @@ public:
 
 	 
 };
-//one-dimension search Use Ratio=0.618
-double goldenSection(double, double,double,Equation&);
-std::string Powell(std::vector<ValueforVar>&,Equation&);
-std::string SteepDescent(std::vector<ValueforVar>&, Equation&);

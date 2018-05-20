@@ -56,6 +56,7 @@ namespace Optimization {
 	private: System::Windows::Forms::FlowLayoutPanel^  flowLayoutPanel5;
 	private: System::Windows::Forms::TextBox^  textBox7;
 	private: System::Windows::Forms::TextBox^  textBox8;
+	private: System::Windows::Forms::Button^  button3;
 
 
 
@@ -106,6 +107,7 @@ namespace Optimization {
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->FunctionList = (gcnew System::Windows::Forms::ComboBox());
 			this->flowLayoutPanel3 = (gcnew System::Windows::Forms::FlowLayoutPanel());
+			this->textBox7 = (gcnew System::Windows::Forms::TextBox());
 			this->label7 = (gcnew System::Windows::Forms::Label());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->label5 = (gcnew System::Windows::Forms::Label());
@@ -113,6 +115,7 @@ namespace Optimization {
 			this->label4 = (gcnew System::Windows::Forms::Label());
 			this->textBox4 = (gcnew System::Windows::Forms::TextBox());
 			this->flowLayoutPanel4 = (gcnew System::Windows::Forms::FlowLayoutPanel());
+			this->textBox8 = (gcnew System::Windows::Forms::TextBox());
 			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
 			this->label9 = (gcnew System::Windows::Forms::Label());
@@ -128,8 +131,7 @@ namespace Optimization {
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->loadEquationsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-			this->textBox7 = (gcnew System::Windows::Forms::TextBox());
-			this->textBox8 = (gcnew System::Windows::Forms::TextBox());
+			this->button3 = (gcnew System::Windows::Forms::Button());
 			this->tableLayoutPanel1->SuspendLayout();
 			this->flowLayoutPanel1->SuspendLayout();
 			this->flowLayoutPanel2->SuspendLayout();
@@ -161,6 +163,7 @@ namespace Optimization {
 			this->flowLayoutPanel1->Controls->Add(this->Input);
 			this->flowLayoutPanel1->Controls->Add(this->flowLayoutPanel2);
 			this->flowLayoutPanel1->Controls->Add(this->OutputText);
+			this->flowLayoutPanel1->Controls->Add(this->button3);
 			this->flowLayoutPanel1->Controls->Add(this->Output);
 			this->flowLayoutPanel1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->flowLayoutPanel1->Location = System::Drawing::Point(3, 35);
@@ -262,6 +265,14 @@ namespace Optimization {
 			this->flowLayoutPanel3->Size = System::Drawing::Size(150, 58);
 			this->flowLayoutPanel3->TabIndex = 6;
 			// 
+			// textBox7
+			// 
+			this->textBox7->Location = System::Drawing::Point(3, 3);
+			this->textBox7->Name = L"textBox7";
+			this->textBox7->Size = System::Drawing::Size(30, 22);
+			this->textBox7->TabIndex = 4;
+			this->textBox7->Text = L"x";
+			// 
 			// label7
 			// 
 			this->label7->Anchor = System::Windows::Forms::AnchorStyles::None;
@@ -328,6 +339,14 @@ namespace Optimization {
 			this->flowLayoutPanel4->Name = L"flowLayoutPanel4";
 			this->flowLayoutPanel4->Size = System::Drawing::Size(143, 58);
 			this->flowLayoutPanel4->TabIndex = 11;
+			// 
+			// textBox8
+			// 
+			this->textBox8->Location = System::Drawing::Point(3, 3);
+			this->textBox8->Name = L"textBox8";
+			this->textBox8->Size = System::Drawing::Size(28, 22);
+			this->textBox8->TabIndex = 4;
+			this->textBox8->Text = L"y";
 			// 
 			// label6
 			// 
@@ -417,7 +436,7 @@ namespace Optimization {
 			// 
 			this->OutputText->Anchor = System::Windows::Forms::AnchorStyles::Left;
 			this->OutputText->AutoSize = true;
-			this->OutputText->Location = System::Drawing::Point(3, 200);
+			this->OutputText->Location = System::Drawing::Point(3, 206);
 			this->OutputText->Name = L"OutputText";
 			this->OutputText->Size = System::Drawing::Size(37, 12);
 			this->OutputText->TabIndex = 7;
@@ -426,11 +445,11 @@ namespace Optimization {
 			// Output
 			// 
 			this->Output->Anchor = System::Windows::Forms::AnchorStyles::None;
-			this->Output->Location = System::Drawing::Point(3, 215);
+			this->Output->Location = System::Drawing::Point(3, 228);
 			this->Output->Multiline = true;
 			this->Output->Name = L"Output";
 			this->Output->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
-			this->Output->Size = System::Drawing::Size(453, 401);
+			this->Output->Size = System::Drawing::Size(453, 384);
 			this->Output->TabIndex = 8;
 			// 
 			// menuStrip1
@@ -461,21 +480,16 @@ namespace Optimization {
 			this->openFileDialog1->FileName = L"openFileDialog1";
 			this->openFileDialog1->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openFileDialog1_FileOk);
 			// 
-			// textBox7
+			// button3
 			// 
-			this->textBox7->Location = System::Drawing::Point(3, 3);
-			this->textBox7->Name = L"textBox7";
-			this->textBox7->Size = System::Drawing::Size(30, 22);
-			this->textBox7->TabIndex = 4;
-			this->textBox7->Text = L"x";
-			// 
-			// textBox8
-			// 
-			this->textBox8->Location = System::Drawing::Point(3, 3);
-			this->textBox8->Name = L"textBox8";
-			this->textBox8->Size = System::Drawing::Size(28, 22);
-			this->textBox8->TabIndex = 4;
-			this->textBox8->Text = L"y";
+			this->button3->Anchor = System::Windows::Forms::AnchorStyles::Left;
+			this->button3->Location = System::Drawing::Point(46, 203);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(66, 19);
+			this->button3->TabIndex = 9;
+			this->button3->Text = L"CLEAR";
+			this->button3->UseVisualStyleBackColor = true;
+			this->button3->Click += gcnew System::EventHandler(this, &MyForm::button3_Click);
 			// 
 			// MyForm
 			// 
@@ -506,6 +520,17 @@ namespace Optimization {
 #pragma endregion
 	private: System::Void MyForm_Load(System::Object^  sender, System::EventArgs^  e) {
 
+		/*Equation a("x^2+y^2");
+		a.VariableChange.push_back(SubVariableintoEq("x", "x+0.5"));
+		a.VariableChange.push_back(SubVariableintoEq("y", "0.5"));
+		a.domainChange.push_back(SubVariableintoEq("x", "x-0.5"));
+		a.domainChange.push_back(SubVariableintoEq("y", "inf*y-inf"));
+		a.range.push_back(Range("x",0,1));
+		a.range.push_back(Range("y", 0,1));
+
+		std::cout << a.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", 0.5), SubValueintoEq("y", 0.5)}) << std::endl;
+		std::vector<SubValueintoEq> newPoints=a.goldenSection();*/
+
 	}
 	private: System::Void loadEquationsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 		openFileDialog1->ShowDialog();
@@ -532,6 +557,12 @@ void Reset(){
 private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
 	Reset();
 	dataManager->EquationIndex = 0;
+
+	for (Equation* e : dataManager->Equations)
+	{
+		delete e;
+	}
+
 	dataManager->Equations.clear();
 	//在Dialog按下OK便會進入此函式
 	//字串轉制string^ to string
@@ -544,11 +575,11 @@ private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::Co
 	//從讀取讀取向量資料
 	if (dataManager->LoadEquationData())
 	{
-		std::vector<Equation>& equations =dataManager->Equations;
+		std::vector<Equation*> equations =dataManager->Equations;
 		Output->Multiline = true;
 		for (unsigned int i = 0; i < equations.size(); i++)
 		{
-			String^ FunctionName=gcnew String((std::to_string(equations[i].EquationIndex) + " : "+ equations[i].EquationString).c_str());
+			String^ FunctionName=gcnew String((std::to_string(equations[i]->EquationIndex) + " : "+ equations[i]->EquationString).c_str());
 			Input->Text += FunctionName;
 			Input->Text += Environment::NewLine;
 			FunctionList->Items->Add(FunctionName);
@@ -558,34 +589,38 @@ private: System::Void openFileDialog1_FileOk(System::Object^  sender, System::Co
 
 private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 
- 	Equation& Poly=(dataManager->Equations.at(dataManager->currentEq));
+ 	Equation* Poly=(dataManager->Equations.at(dataManager->currentEq));
 	dataManager->VarInfo.clear();
+	Poly->range.clear();
 
 	std::string tempString;
 	double t1, t2, t3;
 
-	if (Poly.degree() >= 1)
+	if (Poly->degree() >= 1)
 	{
 		MarshalString(textBox7->Text, tempString);
 		MarshalString(textBox1->Text, t1);
 		MarshalString(textBox3->Text, t2);
 		MarshalString(textBox4->Text, t3);
 
-		dataManager->VarInfo.push_back(ValueforVar(tempString, t1, t2, t3));
+		Poly->range.push_back(Range(tempString,t2,t3));
+		dataManager->VarInfo.push_back(SubValueintoEq(tempString, t1));
 	}	
-	if (Poly.degree() >= 2)
+	if (Poly->degree() >= 2)
 	{
 		MarshalString(textBox8->Text, tempString);
 		MarshalString(textBox2->Text, t1);
 		MarshalString(textBox5->Text, t2);
 		MarshalString(textBox6->Text, t3);
-		dataManager->VarInfo.push_back(ValueforVar(tempString, t1, t2, t3));
+
+		Poly->range.push_back(Range(tempString, t2, t3));
+		dataManager->VarInfo.push_back(SubValueintoEq(tempString, t1));
 	}
 
 	switch (Algorithm->SelectedIndex)
 	{
 	case 0:
-		Output->Text+=gcnew String(Powell(dataManager->VarInfo,Poly).c_str());
+		Output->Text+=gcnew String(Poly->Powell(dataManager->VarInfo).c_str());
 		Output->Text += Environment::NewLine;
 		break;
 	case 1:
@@ -606,17 +641,17 @@ private: System::Void FunctionList_SelectedIndexChanged(System::Object^  sender,
 	
 		
 	dataManager->currentEq = FunctionList->SelectedIndex;
-	Equation& Poly = (dataManager->Equations.at(dataManager->currentEq));
+	Equation* Poly = (dataManager->Equations.at(dataManager->currentEq));
 
 	//show Equation Degree
 	//Input->Text+=dataManager->GetEquations().at(dataManager->currentEq).degree();
 
-	if (Poly.degree() >= 1)
+	if (Poly->degree() >= 1)
 		flowLayoutPanel3->Enabled = true;
 	else
 		flowLayoutPanel3->Enabled = false;
 
-	if(Poly.degree()>=2)
+	if(Poly->degree()>=2)
 		flowLayoutPanel4->Enabled = true;
 	else
 		flowLayoutPanel4->Enabled = false;
@@ -626,6 +661,9 @@ private: System::Void FunctionList_SelectedIndexChanged(System::Object^  sender,
 
 private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
 	Reset();
+}
+private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+	Output->Clear();
 }
 };
 }
