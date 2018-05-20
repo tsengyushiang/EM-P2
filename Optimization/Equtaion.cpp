@@ -130,11 +130,11 @@ std::vector<SubValueintoEq> Equation::goldenSection()
 	sort(min.begin(), min.end());
 	sort(max.begin(), max.end());
 
+	if (min.empty())
+		std::cout << "FK";
 
 	double a = min.back();
 	double b = max.front();
-
-
 
 	while ((abs(b - a) >= THRESHOLD)&&PreventInfiniteLoop)
 	{
@@ -156,7 +156,8 @@ std::vector<SubValueintoEq> Equation::goldenSection()
 		}
 
 
-		if (fc1 < fc2) {
+		if (fc1 < fc2) 
+		{
 			b = c2;
 		}
 		else
@@ -299,7 +300,8 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 			direction.push_back(std::vector<double>{Points.back()[0].value - Points.front()[0].value, Points.back()[1].value - Points.front()[1].value});
 			direction.erase(direction.begin(), direction.begin() + 1);
 			Points.erase(Points.begin(), Points.begin() + 2);
-			result << "S3= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n\r\n";
+			result << "S3= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n\r\n";	
+
 			for (int varcount = 0; varcount < InitialPoints.size(); varcount++)
 			{
 				std::stringstream temp;
@@ -342,6 +344,13 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 			if ((abs(Points[1][0].value - Points[0][0].value) < THRESHOLD) && (abs(Points[1][1].value - Points[0][1].value) < THRESHOLD))
 			{
 				result << "[x,y] = [" << Points[1][0].value<<"\t"<< Points[1][1].value << "]\r\n";
+				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
+				break;
+			}
+			else if(abs((Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)})\
+				)-(Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[0][0].value), SubValueintoEq("y", Points[0][1].value)})))<THRESHOLD)
+ 			{
+				result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
 				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
 				break;
 			}
