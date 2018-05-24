@@ -49,7 +49,11 @@ Term::Term(std::string EqString)
 	//---------------------------erase coefр跑计场だ肚秈variable
 	if (!firstTerm.empty())
 		firstTerm.erase(firstTerm.begin(), firstTerm.begin() + index);
-	vars = new Variable(firstTerm);	
+	
+	if (firstTerm.empty())
+		vars = NULL;
+	else
+	    vars = new Variable(firstTerm);	
 
 	//┮ΤTerm常passЧ
 	if (EqString.empty())
@@ -90,7 +94,13 @@ Term::Term(Term* t)
 double Term::calc(std::vector<SubValueintoEq> v)
 {
 	double sum = 0;
-	sum += vars->calc(v)*coef;
+
+	if (coef == 0)
+		sum += 0;
+	else if(vars!=NULL)
+		sum += vars->calc(v)*coef;
+	else
+		sum += coef;
 
 	if (next)
 		sum += next->calc(v);
@@ -105,4 +115,48 @@ Term& Term::operator=(Term& t)
 	vars = new Variable(t.vars);
 	next = new Term(t.str);
 	return *this;
+}
+
+void Term::gradient(std::string name)
+{
+	if (vars != NULL)
+	{
+		coef *= vars->gradient(name);
+
+		//-------------------------------------浪琩稬だЧ琌盽计x^0
+		std::vector<Variable*> everyVar;
+		
+		//р┮Τ跑计癬ㄓ
+		Variable* iter = vars;
+		while (iter!=NULL)
+		{
+			everyVar.push_back(iter);
+			iter = iter->next;
+		}
+
+		//讽exp==0 deleteê跑计
+		for (int index=1;index<everyVar.size();index++)
+		{
+			if (everyVar[index]->exp == 0)
+			{
+				everyVar[index - 1]->next = everyVar[index]->next;
+				everyVar[index]->next = NULL;
+				delete everyVar[index];
+			} 
+		}
+				
+		if (vars->exp == 0)
+		{
+			Variable* t = vars->next;
+			vars->next = NULL;
+			delete vars;
+			vars = t;
+		}
+	}
+	else
+		coef = 0;
+
+	if (next != NULL)
+		next->gradient(name);	
+	
 }

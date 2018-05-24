@@ -126,12 +126,12 @@ namespace Optimization {
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->OutputText = (gcnew System::Windows::Forms::Label());
+			this->button3 = (gcnew System::Windows::Forms::Button());
 			this->Output = (gcnew System::Windows::Forms::TextBox());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->loadEquationsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-			this->button3 = (gcnew System::Windows::Forms::Button());
 			this->tableLayoutPanel1->SuspendLayout();
 			this->flowLayoutPanel1->SuspendLayout();
 			this->flowLayoutPanel2->SuspendLayout();
@@ -219,9 +219,9 @@ namespace Optimization {
 			// 
 			this->Algorithm->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->Algorithm->FormattingEnabled = true;
-			this->Algorithm->Items->AddRange(gcnew cli::array< System::Object^  >(6) {
-				L"Powell¡¦s Method", L"Newton Method", L"Steep Descent Algorithm",
-					L"Quasi-Newton Method", L"Conjugate Gradient Methods", L""
+			this->Algorithm->Items->AddRange(gcnew cli::array< System::Object^  >(5) {
+				L"Powell¡¦s Method", L"Steep Descent Method", L"Newton Method",
+					L"Quasi-Newton Method", L"Conjugate Gradient Methods"
 			});
 			this->Algorithm->Location = System::Drawing::Point(62, 3);
 			this->Algorithm->Name = L"Algorithm";
@@ -442,6 +442,17 @@ namespace Optimization {
 			this->OutputText->TabIndex = 7;
 			this->OutputText->Text = L"Output";
 			// 
+			// button3
+			// 
+			this->button3->Anchor = System::Windows::Forms::AnchorStyles::Left;
+			this->button3->Location = System::Drawing::Point(46, 203);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(66, 19);
+			this->button3->TabIndex = 9;
+			this->button3->Text = L"CLEAR";
+			this->button3->UseVisualStyleBackColor = true;
+			this->button3->Click += gcnew System::EventHandler(this, &MyForm::button3_Click);
+			// 
 			// Output
 			// 
 			this->Output->Anchor = System::Windows::Forms::AnchorStyles::None;
@@ -479,17 +490,6 @@ namespace Optimization {
 			// 
 			this->openFileDialog1->FileName = L"openFileDialog1";
 			this->openFileDialog1->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openFileDialog1_FileOk);
-			// 
-			// button3
-			// 
-			this->button3->Anchor = System::Windows::Forms::AnchorStyles::Left;
-			this->button3->Location = System::Drawing::Point(46, 203);
-			this->button3->Name = L"button3";
-			this->button3->Size = System::Drawing::Size(66, 19);
-			this->button3->TabIndex = 9;
-			this->button3->Text = L"CLEAR";
-			this->button3->UseVisualStyleBackColor = true;
-			this->button3->Click += gcnew System::EventHandler(this, &MyForm::button3_Click);
 			// 
 			// MyForm
 			// 
@@ -624,6 +624,9 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 		Output->Text += Environment::NewLine;
 		break;
 	case 1:
+		Output->Text += gcnew String(Poly->SteepDescent(dataManager->VarInfo).c_str());
+		Output->Text += Environment::NewLine;
+		break;
 	case 2:
 	case 3:
 	case 4:

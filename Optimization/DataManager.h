@@ -127,8 +127,8 @@ public:
 	Variable(Variable*);
 	~Variable();
 	Variable& operator=(Variable&);
-
-
+	
+	double gradient(std::string name);
 	double calc(std::vector<SubValueintoEq> vars);
 };
 
@@ -147,6 +147,7 @@ public:
 	~Term();
 	Term& operator =(Term&);
 
+	void gradient(std::string name);
 	double calc(std::vector<SubValueintoEq> vars);
 };
 
@@ -168,9 +169,10 @@ public:
 
 	int degree();
 	double calc(std::vector<SubValueintoEq> vars);
-	std::vector<SubValueintoEq> goldenSection();
+	double goldenSection();
 	std::string Powell(std::vector<SubValueintoEq>&);
 	std::string SteepDescent(std::vector<SubValueintoEq>&);
+	void gradient(std::string name);
 
 
 };

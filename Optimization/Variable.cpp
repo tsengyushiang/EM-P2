@@ -22,13 +22,6 @@ Variable::Variable(Variable* v)
 Variable::Variable(std::string vars)
 {
 	str = vars;
-	if (vars.empty())
-	{
-		name = 'x';
-		exp = 0;
-		next = NULL;
-		return;
-	}
 	std::stringstream temp;
 	int index = 0;
 	bool NameLoaded = 0;
@@ -73,8 +66,8 @@ double Variable::calc(std::vector<SubValueintoEq> vars)
 {
 	double sum = 1;
 	for (SubValueintoEq c : vars)
-		if ((name == c.name)||(c.name=="*"))
-			sum *= powl(c.value, exp);
+		if ((name == c.name))
+			sum *= powl(c.value, exp);	
 
 	if (next)
 		sum *= next->calc(vars);
@@ -95,4 +88,22 @@ Variable& Variable::operator=(Variable& v)
 	exp = v.exp;
 	next = new Variable(v.next);
 	return *this;
+}
+
+double Variable::gradient(std::string name)
+{
+	Variable* var=this;
+	double coef = 0;
+
+	if (var->name == name)
+	{
+		coef = var->exp;
+		var->exp -= 1;
+	}
+
+	if((!coef)&&(next!=NULL))
+		coef = next->gradient(name);
+
+	return coef;
+
 }
