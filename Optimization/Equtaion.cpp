@@ -101,7 +101,7 @@ double Equation::goldenSection()
 {
 	int  PreventInfiniteLoop = 200;	
 
-	const double THRESHOLD = 0.001;	
+	const long double THRESHOLD = 1E-06;	
 	const double RATIO = 2 - ((1 + sqrt(5.0)) / 2);
 	
 	std::vector<double> min;
@@ -118,22 +118,19 @@ double Equation::goldenSection()
 				double m = temp->calc(std::vector<SubValueintoEq>{SubValueintoEq(v.name, r.min)});
 				double M = temp->calc(std::vector<SubValueintoEq>{SubValueintoEq(v.name, r.max)});
 				
-				if(abs(m)<1E+60)
+				if(abs(m)<1E+66)
 					min.push_back(m);
-				if(abs(M)<1E+60)
+				if (abs(M)<1E+66)
 					max.push_back(M);
 				delete temp;
 			}
 		}
 	}
-
 	sort(min.begin(), min.end());
 	sort(max.begin(), max.end());
 
 	if (min.empty() || max.empty())
-	{
 		return 0;
-	}
 
 	double a = min.back();
 	double b = max.front();
@@ -232,10 +229,9 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 			result << "x0 = " << Points[0][0].value << "\r\n";
 			result << "x1 = " << newPoints[0].value << "\r\n";
 			result << "aplha= " << alpha << "\r\n";
-			result << "S = " << (newPoints[0].value - Points[0][0].value) << "\r\n\r\n";
-
-			if (abs((newPoints[0].value - Points[0][0].value)) < THRESHOLD)
-				break;
+			result << "S = " << (newPoints[0].value - Points[0][0].value) << "\r\n\r\n";		
+			
+			if (abs((newPoints[0].value - Points[0][0].value)) < THRESHOLD)	break;
 
 			direction[0][0] = (newPoints[0].value - Points[0][0].value);
 			Points[0]= newPoints;
@@ -298,23 +294,29 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 				}
 
 				//--------------------------------------------------Print
-				result << "x0 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
+				result << "x"<<count+1<<" = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
 				//-------------------------------
 				Points.push_back(newPoints);
-				result << "x1 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
+				result << "x" << count + 2 << " = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
 				result << "aplha= " << alpha << "\r\n";
-				result << "S"<<count<<"= " << direction[count][0] << "\t" << direction.back()[1] << "\r\n\r\n";
+				result << "S"<<count<<"= " << direction[count][0] << "\t" << direction[count][1] << "\r\n\r\n";
 				//----------------------------------------------------------RESET
 				newPoints.clear();
 				Eq.VariableChange.clear();
-				Eq.domainChange.clear();
-			}
+				Eq.domainChange.clear();	
+
+				if ((powl(Points[1][0].value - Points[0][0].value, 2) + powl(Points[1][1].value - Points[0][1].value, 2)) < THRESHOLD)
+				{
+					result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
+					result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
+					return result.str();
+				}
+			}			
 
 			direction.push_back(std::vector<double>{Points.back()[0].value - Points.front()[0].value, Points.back()[1].value - Points.front()[1].value});
 			direction.erase(direction.begin(), direction.begin() + 1);
 			Points.erase(Points.begin(), Points.begin() + 2);
-			result << "S3= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n\r\n";	
-
+			
 			for (int varcount = 0; varcount < InitialPoints.size(); varcount++)
 			{
 				std::stringstream temp;
@@ -356,31 +358,14 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 			}
 
 			//--------------------------------------------------Print
-			result << "x0 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
-			//-------------------------------
-			Points.push_back(newPoints);
-			result << "x1 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
+			Points.push_back(newPoints);			
 			result << "aplha= " << alpha << "\r\n";
-			result << "S= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n\r\n";
+			result << "S= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n";
+			result << "x4 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n\r\n";
 			//----------------------------------------------------------RESET			
 			newPoints.clear();
 			Eq.VariableChange.clear();
-			Eq.domainChange.clear();
-		
-
-			if (((powl(Points[1][0].value - Points[0][0].value,2)+ powl(Points[1][1].value - Points[0][1].value, 2)) < THRESHOLD))
-			{
-				result << "[x,y] = [" << Points[1][0].value<<"\t"<< Points[1][1].value << "]\r\n";
-				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
-				break;
-			}
-			else if(abs((Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)})\
-				)-(Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[0][0].value), SubValueintoEq("y", Points[0][1].value)})))<THRESHOLD)
- 			{
-				result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
-				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
-				break;
-			}
+			Eq.domainChange.clear();		
 			Points.erase(Points.begin(), Points.begin() + 1);
 		}
 
@@ -401,12 +386,7 @@ std::string Equation::SteepDescent(std::vector<SubValueintoEq>& InitialPoints)
 		std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
 
 		Equation gradient(this);
-		gradient.gradient("x");
-
-		std::cout << gradient.calc(std::vector<SubValueintoEq>{SubValueintoEq("x",50)})<<std::endl;
-		std::cout << gradient.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", 0.330991)}) << std::endl;
-		std::cout << gradient.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", 0.348162)}) << std::endl;
-
+		gradient.gradient("x");		
 		std::vector<std::vector<double>> direction{ std::vector<double>{(-1)*gradient.calc(InitialPoints)} };
 		std::vector<SubValueintoEq> newPoints;
 
@@ -454,10 +434,11 @@ std::string Equation::SteepDescent(std::vector<SubValueintoEq>& InitialPoints)
 				delete temp;
 			}
 
-			result << "x0 = " << Points[0][0].value << "\r\n";
-			result << "x1 = " << newPoints[0].value << "\r\n";
+			result << "h = " << direction[0][0] << "\r\n\r\n";
 			result << "aplha= " << alpha << "\r\n";
-			result << "S = " << direction[0][0] << "\r\n\r\n";
+			result << "X = " << newPoints[0].value << "\r\n";
+			
+			
 			
 			Points[0] = newPoints;
 			direction[0][0] = (-1)*gradient.calc(std::vector<SubValueintoEq>{SubValueintoEq(Points[0][0].name, Points[0][0].value)});
@@ -473,139 +454,91 @@ std::string Equation::SteepDescent(std::vector<SubValueintoEq>& InitialPoints)
 	}
 	else
 	{
-		//std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
-		//std::vector<std::vector<double>> direction{ std::vector<double>{1,0},std::vector<double>{0,1} };
-		//std::vector<SubValueintoEq> newPoints;
+		Equation gradientX(this);
+		Equation gradientY(this);
+		gradientX.gradient("x");
+		gradientY.gradient("y");
 
-		//for (int i = 0; i < MAXIMUMLOOPCOUNT; i++)
-		//{
-		//	Equation Eq(this);
-		//	for (int count = 0; count < InitialPoints.size(); count++)
-		//	{
-		//		for (int varcount = 0; varcount < InitialPoints.size(); varcount++)
-		//		{
-		//			std::stringstream temp;
-		//			temp << Points.back()[varcount].value;
-		//			if (direction[count][varcount] > 0)
-		//				temp << "+";
-		//			else
-		//				temp << "-";
-		//			temp << abs(direction[count][varcount]);
-		//			temp << "*";
-		//			temp << Points.back()[varcount].name;
-		//			Eq.VariableChange.push_back(SubVariableintoEq(InitialPoints[varcount].name, temp.str()));
-		//			temp.str("");
+		std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
 
-		//			double t = 1.0 / direction[count][varcount];
+		std::vector<std::vector<double>> direction{ std::vector<double>{
+			(-1)*gradientX.calc(InitialPoints),	(-1)*gradientY.calc(InitialPoints)
+		}};
 
-		//			temp << t << "*";
-		//			temp << Points.back()[varcount].name;
+		std::vector<SubValueintoEq> newPoints;
 
-		//			if ((Points.back()[varcount].value < 0) ^ (t < 0))
-		//				temp << "+";
-		//			else
-		//				temp << "-";
-		//			temp << abs(Points.back()[varcount].value*t);
+		for (int i = 0; i < MAXIMUMLOOPCOUNT; i++)
+		{
+			Equation Eq(this);
+			
+			for (int varcount = 0; varcount < InitialPoints.size(); varcount++)
+			{
+					std::stringstream temp;
+					temp << Points.back()[varcount].value;
+					if (direction[0][varcount] > 0)
+						temp << "+";
+					else
+						temp << "-";
+					temp << abs(direction[0][varcount]);
+					temp << "*";
+					temp << Points.back()[varcount].name;
+					Eq.VariableChange.push_back(SubVariableintoEq(InitialPoints[varcount].name, temp.str()));
+					temp.str("");
 
-		//			Eq.domainChange.push_back(SubVariableintoEq(InitialPoints[varcount].name, temp.str()));
-		//		}
-		//		double alpha = Eq.goldenSection();
+					double t = 1.0 / direction[0][varcount];
 
+					temp << t << "*";
+					temp << Points.back()[varcount].name;
 
-		//		for (SubVariableintoEq v : Eq.VariableChange)
-		//		{
-		//			Equation* temp = new Equation(v.Eq);
+					if ((Points.back()[varcount].value < 0) ^ (t < 0))
+						temp << "+";
+					else
+						temp << "-";
+					temp << abs(Points.back()[varcount].value*t);
 
-		//			newPoints.push_back(SubValueintoEq(v.name, \
-		//				temp->calc(std::vector<SubValueintoEq>{SubValueintoEq(v.name, alpha)})));
-
-		//			delete temp;
-		//		}
-
-		//		//--------------------------------------------------Print
-		//		result << "x0 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
-		//		//-------------------------------
-		//		Points.push_back(newPoints);
-		//		result << "x1 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
-		//		result << "aplha= " << alpha << "\r\n";
-		//		//----------------------------------------------------------RESET
-		//		newPoints.clear();
-		//		Eq.VariableChange.clear();
-		//		Eq.domainChange.clear();
-		//	}
-
-		//	direction.push_back(std::vector<double>{Points.back()[0].value - Points.front()[0].value, Points.back()[1].value - Points.front()[1].value});
-		//	direction.erase(direction.begin(), direction.begin() + 1);
-		//	Points.erase(Points.begin(), Points.begin() + 2);
-		//	result << "S3= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n\r\n";
-
-		//	for (int varcount = 0; varcount < InitialPoints.size(); varcount++)
-		//	{
-		//		std::stringstream temp;
-		//		temp << Points.back()[varcount].value;
-		//		if (direction.back()[varcount] > 0)
-		//			temp << "+";
-		//		else
-		//			temp << "-";
-		//		temp << abs(direction.back()[varcount]);
-		//		temp << "*";
-		//		temp << Points.back()[varcount].name;
-		//		Eq.VariableChange.push_back(SubVariableintoEq(InitialPoints[varcount].name, temp.str()));
-		//		temp.str("");
-
-		//		double t = 1.0 / direction.back()[varcount];
-
-		//		temp << t << "*";
-		//		temp << Points.back()[varcount].name;
-
-		//		if ((Points.back()[varcount].value < 0) ^ (t < 0))
-		//			temp << "+";
-		//		else
-		//			temp << "-";
-		//		temp << abs(Points.back()[varcount].value*t);
-
-		//		Eq.domainChange.push_back(SubVariableintoEq(InitialPoints[varcount].name, temp.str()));
-		//	}
-		//	double alpha = Eq.goldenSection();
+				Eq.domainChange.push_back(SubVariableintoEq(InitialPoints[varcount].name, temp.str()));
+			}
+			double alpha = Eq.goldenSection();
 
 
-		//	for (SubVariableintoEq v : Eq.VariableChange)
-		//	{
-		//		Equation* temp = new Equation(v.Eq);
+			for (SubVariableintoEq v : Eq.VariableChange)
+			{
+				Equation* temp = new Equation(v.Eq);
 
-		//		newPoints.push_back(SubValueintoEq(v.name, \
-		//			temp->calc(std::vector<SubValueintoEq>{SubValueintoEq(v.name, alpha)})));
+				newPoints.push_back(SubValueintoEq(v.name, \
+					temp->calc(std::vector<SubValueintoEq>{SubValueintoEq(v.name, alpha)})));
 
-		//		delete temp;
-		//	}
+				delete temp;
+			}
 
-		//	//--------------------------------------------------Print
-		//	result << "x0 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
-		//	//-------------------------------
-		//	Points.push_back(newPoints);
-		//	result << "x1 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n";
-		//	result << "aplha= " << alpha << "\r\n";
-		//	//----------------------------------------------------------RESET			
-		//	newPoints.clear();
-		//	Eq.VariableChange.clear();
-		//	Eq.domainChange.clear();
-
-
-		//	if (((powl(Points[1][0].value - Points[0][0].value, 2) + powl(Points[1][1].value - Points[0][1].value, 2)) < THRESHOLD))
-		//	{
-		//		result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
-		//		result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
-		//		break;
-		//	}
-		//	else if (abs((Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)})\
-		//		) - (Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[0][0].value), SubValueintoEq("y", Points[0][1].value)})))<THRESHOLD)
-		//	{
-		//		result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
-		//		result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
-		//		break;
-		//	}
-		//	Points.erase(Points.begin(), Points.begin() + 1);
-		//}
+			//--------------------------------------------------Print
+			result << "h = " << direction[0][0] << "\t" << direction[0][1] << "\r\n";	
+			result << "lambda= " << alpha << "\r\n";
+			Points.push_back(newPoints);
+			result << "X = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n\r\n";			
+			//----------------------------------------------------------RESET
+			newPoints.clear();
+			Eq.VariableChange.clear();
+			Eq.domainChange.clear();
+		
+			direction[0] = std::vector<double>{(-1)*gradientX.calc({SubValueintoEq(Points[1][0].name,Points[1][0].value), SubValueintoEq(Points[1][1].name,Points[1][1].value) })\
+							, (-1)*gradientY.calc({ SubValueintoEq(Points[1][1].name,Points[1][1].value),SubValueintoEq(Points[1][0].name,Points[1][0].value) })};
+			
+			if (((powl(Points[1][0].value - Points[0][0].value, 2) + powl(Points[1][1].value - Points[0][1].value, 2)) < THRESHOLD))
+			{
+				result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
+				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
+				break;
+			}
+			else if (abs((Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)})\
+				) - (Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[0][0].value), SubValueintoEq("y", Points[0][1].value)})))<THRESHOLD)
+			{
+				result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
+				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
+				break;
+			}
+			Points.erase(Points.begin(), Points.begin() + 1);
+		}
 
 	}
 	return result.str();
@@ -626,14 +559,17 @@ void Equation::gradient(std::string name)
 	}
 
 	//當exp==0時 delete那個變數
-	for (int index = 1; index<everyTerm.size(); index++)
+	for (int index = 1; index<everyTerm.size();)
 	{
 		if (everyTerm[index]->coef == 0)
 		{
 			everyTerm[index - 1]->next = everyTerm[index]->next;
 			everyTerm[index]->next = NULL;
 			delete everyTerm[index];
+			everyTerm.erase(everyTerm.begin() + index, everyTerm.begin() + index + 1);
 		}
+		else
+			index++;
 	}
 
 	if ((EqTerms->coef == 0))

@@ -9,7 +9,6 @@
 #include <cmath>
 #include <set>
 #include<algorithm>
-
 class Vector
 {
 public:
