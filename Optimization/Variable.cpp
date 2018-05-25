@@ -67,8 +67,8 @@ double Variable::calc(std::vector<SubValueintoEq> vars)
 	double sum = 1;
 	for (SubValueintoEq c : vars)
 		if ((name == c.name))
-			sum *= powl(c.value, exp);	
-
+			sum *= powl(c.value, exp);			
+		
 	if (next)
 		sum *= next->calc(vars);
 

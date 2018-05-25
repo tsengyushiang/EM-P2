@@ -628,7 +628,13 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 		Output->Text += Environment::NewLine;
 		break;
 	case 2:
+		Output->Text += gcnew String(Poly->Newton(dataManager->VarInfo).c_str());
+		Output->Text += Environment::NewLine;
+		break;
 	case 3:
+		Output->Text += gcnew String(Poly->Qusai_Newton(dataManager->VarInfo).c_str());
+		Output->Text += Environment::NewLine;
+		break;
 	case 4:
 
 	default:

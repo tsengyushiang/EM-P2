@@ -927,3 +927,40 @@ Matrix LeastSquare(Matrix&  a, Matrix& b)
 
 	return result;
 }
+
+
+Matrix::Matrix(std::vector<double> m)
+{
+	colCount = sqrt(m.size());
+	rowCount = m.size()/colCount;
+
+	for (int row = 0; row < rowCount; row++)
+	{
+		std::vector<double> tempDatas;
+		for (int col = 0; col < colCount; col++)
+		{
+			double value;
+			value=m[row*(colCount)+col];
+			tempDatas.push_back(value);
+		}
+		Data.push_back(tempDatas);
+		tempDatas.clear();
+	}
+	
+	Error = 0;
+}
+Matrix operator/(const Matrix& a, const Matrix& b)
+{
+	Matrix result = a;
+	if (b.rowCount == 1 && b.colCount == 1)
+
+		for (int i = 0; i < result.rowCount; i++)
+		{
+			for (int j = 0; j < result.colCount; j++)
+			{
+				result.Data[i][j] /= b.Data[0][0];
+			}
+		}
+
+	return result;
+}

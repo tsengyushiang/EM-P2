@@ -69,6 +69,7 @@ int Equation::degree()
 
 double Equation::calc(std::vector<SubValueintoEq> vars)
 {
+	if (EqTerms == NULL) return 0;
 	for (SubValueintoEq& v : vars)
 	{
 		for (SubVariableintoEq variable : VariableChange)
@@ -540,6 +541,205 @@ std::string Equation::SteepDescent(std::vector<SubValueintoEq>& InitialPoints)
 			Points.erase(Points.begin(), Points.begin() + 1);
 		}
 
+	}
+	return result.str();
+}
+
+std::string Equation::Newton(std::vector<SubValueintoEq>& InitialPoints)
+{
+	const double THRESHOLD = 1.0E-04;
+	const int MAXIMUMLOOPCOUNT = 500;
+	std::stringstream result;
+
+	if (InitialPoints.size() == 1)
+	{
+		std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
+
+		Equation gradient1(this);
+		Equation gradient2(this);
+		gradient1.gradient("x");
+		gradient2.gradient("x");
+		gradient2.gradient("x");		
+
+		std::vector<Matrix> direction{};
+		std::vector<SubValueintoEq> newPoints;
+
+		for (int i = 0; i < MAXIMUMLOOPCOUNT; i++)
+		{		
+			Matrix hessian;
+			Matrix gradient;
+			std::stringstream t;
+
+			t << 1 << " " << 1 << " " << gradient2.calc(Points[0]) << std::endl;
+			t << 1 << " " << 1 << " " << gradient1.calc(Points[0]) << std::endl;
+			t >> hessian >> gradient;
+			result <<"Hessian=\r\n "<<hessian << "\r\n";
+			result << "Hessian Inverse=\r\n " << hessian.Inverse() << "\r\n";	
+
+			direction.push_back((-0.5)*hessian.Inverse()*gradient);
+
+			newPoints.push_back(SubValueintoEq("x",Points[0][0].value + direction[0].Data[0][0]));			
+			
+			result << "x= " << newPoints[0].value << "\r\n\r\n";
+
+			if (abs(newPoints[0].value - Points[0][0].value) < THRESHOLD)break;
+
+			Points[0] = newPoints;
+			direction.clear();
+			newPoints.clear();
+			t.str(""); t.clear();
+		
+		}
+		result << "[x] = [" << newPoints[0].value << "]\r\n";
+		result << "min = " << calc(std::vector<SubValueintoEq>{SubValueintoEq("x", newPoints[0].value)}) << "\r\n";
+	}
+	else
+	{
+		std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
+
+		Equation gradientX(this); gradientX.gradient("x");
+		Equation gradientY(this); gradientY.gradient("y");
+		Equation gradientXX(this); gradientXX.gradient("x"); gradientXX.gradient("x");
+		Equation gradientXY(this); gradientXY.gradient("x"); gradientXY.gradient("y");
+		Equation gradientYY(this); gradientYY.gradient("y"); gradientYY.gradient("y");		
+
+		std::vector<Matrix> direction{};
+		std::vector<SubValueintoEq> newPoints;
+
+		for (int i = 0; i < MAXIMUMLOOPCOUNT; i++)
+		{
+			Matrix hessian;
+			Matrix gradient;
+			std::stringstream t;
+
+			t << 2 << " " << 2 << " " << gradientXX.calc(Points[0]) << " " << gradientXY.calc(Points[0]) << " "\
+				<< gradientXY.calc(Points[0]) << " " << gradientYY.calc(Points[0]) << std::endl;
+
+			t << 2 << " " << 1 << " " << gradientX.calc(Points[0]) << " " << gradientY.calc(Points[0]) << std::endl;
+
+			t >> hessian >> gradient;
+			result << "Hessian=\r\n " << hessian << "\r\n";
+			result << "Hessian Inverse=\r\n " << hessian.Inverse() << "\r\n";
+
+			direction.push_back((-1)*hessian.Inverse()*gradient);
+
+			newPoints = std::vector<SubValueintoEq>{ SubValueintoEq("x", Points[0][0].value + direction[0].Data[0][0]), \
+														SubValueintoEq("y", Points[0][1].value + direction[0].Data[1][0]) };
+
+			result << "x= " << newPoints[0].value<<" " << newPoints[1].value << "\r\n\r\n";
+
+			if ((powl(newPoints[0].value - Points[0][0].value, 2) + powl(newPoints[1].value - Points[0][1].value, 2)) < THRESHOLD)
+			{
+				break;
+			}
+
+			Points[0] = newPoints;
+			direction.clear();
+			newPoints.clear();
+			t.str(""); t.clear();
+
+		}
+		result << "[x,y] = [" << newPoints[0].value << "\t" << newPoints[1].value << "]\r\n";
+		result << "min = " << calc(std::vector<SubValueintoEq>{SubValueintoEq("x", newPoints[0].value), SubValueintoEq("y", newPoints[1].value)}) << "\r\n";
+	}
+	return result.str();
+}
+
+
+std::string Equation::Qusai_Newton(std::vector<SubValueintoEq>& InitialPoints)
+{
+	const double THRESHOLD = 1.0E-04;
+	const int MAXIMUMLOOPCOUNT = 500;
+	std::stringstream result;
+
+	if (InitialPoints.size() == 1)
+	{
+		std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
+		std::vector<Matrix> direction{};
+		std::vector<SubValueintoEq> newPoints;
+
+		Equation gradientX(this);
+		gradientX.gradient("x");		
+
+		Matrix F({1});
+
+		for (int i = 0; i < MAXIMUMLOOPCOUNT; i++)
+		{
+			
+			Matrix gradient({ gradientX.calc(Points[0]) });
+			std::stringstream t;	
+
+			result << "F= " << F ;
+
+			direction.push_back((-1)*F.Inverse()*gradient);
+
+			newPoints.push_back(SubValueintoEq("x", Points[0][0].value + (0.1)*direction[0].Data[0][0]));
+
+			
+			Matrix deltaX = Matrix({ newPoints[0].value - Points[0][0].value });
+			Matrix deltaGradient = Matrix({ gradientX.calc({newPoints[0]}) - gradientX.calc(Points[0])});
+
+			F = F + ((deltaX - F * deltaGradient)/deltaGradient);	
+		
+			result << "x= " << newPoints[0].value << "\r\n\r\n";	
+
+			if (abs(newPoints[0].value - Points[0][0].value) < THRESHOLD)break;
+
+			Points[0] = newPoints;
+			direction.clear();
+			newPoints.clear();
+			t.str(""); t.clear();
+
+		}
+		result << "[x] = [" << newPoints[0].value << "]\r\n";
+		result << "min = " << calc(std::vector<SubValueintoEq>{SubValueintoEq("x", newPoints[0].value)}) << "\r\n";
+	}
+	else
+	{
+		std::vector<std::vector<SubValueintoEq>> Points{ std::vector<SubValueintoEq>{InitialPoints} };
+		std::vector<Matrix> direction{};
+		std::vector<SubValueintoEq> newPoints;
+
+		Equation gradientX(this);
+		Equation gradientY(this);
+		gradientX.gradient("x");
+		gradientY.gradient("y");
+
+		Matrix F({ 1,0,0,1 });
+
+		for (int i = 0; i < MAXIMUMLOOPCOUNT; i++)
+		{
+			Matrix gradient({ gradientX.calc(Points[0]),gradientY.calc(Points[0]) });
+			std::stringstream t;
+		
+			result << "F= \r\n" << F;
+
+			direction.push_back((-0.5)*F*gradient);
+
+			newPoints.push_back(SubValueintoEq("x", Points[0][0].value + direction[0].Data[0][0]));
+			newPoints.push_back(SubValueintoEq("y", Points[0][1].value + direction[0].Data[1][0]));
+
+			Matrix deltaX = Matrix({ newPoints[0].value - Points[0][0].value, newPoints[1].value - Points[0][1].value });
+			Matrix deltaGradient = Matrix({ gradientX.calc(newPoints) - gradientX.calc(Points[0]),gradientY.calc(newPoints) - gradientY.calc(Points[0]) });
+
+			F = F + ((deltaX - F * deltaGradient)*(deltaX - F * deltaGradient).Transpose())/
+				((deltaX - F * deltaGradient).Transpose()*deltaGradient);
+			
+			result << "x= " << newPoints[0].value<<"\t"<< newPoints[1].value << "\r\n\r\n";
+
+			if ((powl(newPoints[0].value - Points[0][0].value, 2) + powl(newPoints[1].value - Points[0][1].value, 2)) < THRESHOLD)
+			{
+				break;
+			}
+			
+			Points[0] = newPoints;
+			direction.clear();
+			newPoints.clear();
+			t.str(""); t.clear();
+
+		}
+		result << "[x,y] = [" << newPoints[0].value << "\t" << newPoints[1].value << "]\r\n";
+		result << "min = " << calc(std::vector<SubValueintoEq>{SubValueintoEq("x", newPoints[0].value), SubValueintoEq("y", newPoints[1].value)}) << "\r\n";
 	}
 	return result.str();
 }

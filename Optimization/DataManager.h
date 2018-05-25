@@ -53,9 +53,11 @@ class Matrix
 public:
 	int rowCount, colCount;
 	Matrix();
+	Matrix(std::vector<double>);
 	bool Error;
 	std::string Name;
 	std::vector<std::vector<double>> Data;
+	friend Matrix operator/(const Matrix&, const Matrix&);
 	friend Matrix operator+(const Matrix&, const Matrix&);
 	friend Matrix operator-(const Matrix&, const Matrix&);
 	friend Matrix operator*(const Matrix&, const Matrix&);
@@ -171,6 +173,8 @@ public:
 	double goldenSection();
 	std::string Powell(std::vector<SubValueintoEq>&);
 	std::string SteepDescent(std::vector<SubValueintoEq>&);
+	std::string Newton(std::vector<SubValueintoEq>&);
+	std::string Qusai_Newton(std::vector<SubValueintoEq>&);
 	void gradient(std::string name);
 
 
