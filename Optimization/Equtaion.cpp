@@ -744,6 +744,89 @@ std::string Equation::Qusai_Newton(std::vector<SubValueintoEq>& InitialPoints)
 	return result.str();
 }
 
+std::string Equation::Conjugate_Gradient(std::vector<SubValueintoEq>& InitialPoints)
+{
+	const double THRESHOLD = 1.0E-04;
+	const int MAXIMUMLOOPCOUNT = 500;
+	std::stringstream result;
+
+	if (InitialPoints.size() == 1)
+	{
+		double x1 = InitialPoints[0].value;
+		double B;
+		double direction;
+		double x2;
+		double REdir;
+
+		for (int i = 0; ; i++)
+		{
+			Equation equ(this);
+			Equation DF(this);
+			DF.gradient("x");
+
+			if (i == 0)
+			{
+				direction = -1.0 * DF.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x1)});
+			}
+			else
+			{
+				REdir = direction;
+				direction = -1.0 * DF.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x1)});
+				B = (direction * direction) / (REdir * REdir);
+				direction = direction + B * REdir;
+			}
+			std::stringstream temp;
+			temp << x1;
+			if (direction > 0)
+				temp << "+";
+			else
+				temp << "-";
+			temp << abs(direction) << "*";
+			temp << InitialPoints[0].name;
+			equ.VariableChange.push_back(SubVariableintoEq(InitialPoints[0].name, temp.str()));
+
+			temp.str("");
+			double t = 1.0 / direction;
+			temp << t << "*";
+			temp << "x";
+			if ((x1< 0) ^ (t < 0))
+				temp << "+";
+			else
+				temp << "-";
+			temp << abs(x1*t);
+			equ.domainChange.push_back(SubVariableintoEq(InitialPoints[0].name, temp.str()));
+			double alpha = equ.goldenSection();
+
+			x2 = x1 + direction * alpha;
+
+			if (x2 > equ.range[0].max)
+				x2 = equ.range[0].max;
+			if (x2 < equ.range[0].min)
+				x2 = equ.range[0].min;
+
+			//print......................................................................
+			result << "Xi = [ " << x1 << " ]\r\n";
+			if (i != 0)
+			{
+				result << "BETA = " << B << "\r\n";
+			}
+			result << "Si = " << direction << "\r\n" << "Alpha = " << alpha << "\r\n" << "Xi = [ " << x2 << " ]\r\n\r\n";
+			double value = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x2)});
+			if (abs(calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x2)}) - calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x1)})) < THRESHOLD || abs(x2 - x1) < THRESHOLD || i == MAXIMUMLOOPCOUNT - 1){break;}
+			
+			x1 = x2;
+		}
+		result << "[x] = [" << x2 << "]\r\n";
+		result << "min = " << calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x2)}) << "\r\n";
+	}
+	else
+	{
+
+
+	}
+	return result.str();
+}
+
 void Equation::gradient(std::string name)
 {
 	EqTerms->gradient(name);

@@ -636,7 +636,8 @@ private: System::Void button1_Click(System::Object^  sender, System::EventArgs^ 
 		Output->Text += Environment::NewLine;
 		break;
 	case 4:
-
+		Output->Text += gcnew String(Poly->Conjugate_Gradient(dataManager->VarInfo).c_str());
+		Output->Text += Environment::NewLine;
 	default:
 		break;
 	}

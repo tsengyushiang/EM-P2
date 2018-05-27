@@ -175,6 +175,7 @@ public:
 	std::string SteepDescent(std::vector<SubValueintoEq>&);
 	std::string Newton(std::vector<SubValueintoEq>&);
 	std::string Qusai_Newton(std::vector<SubValueintoEq>&);
+	std::string Conjugate_Gradient(std::vector<SubValueintoEq>&);
 	void gradient(std::string name);
 
 
