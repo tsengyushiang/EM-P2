@@ -102,8 +102,8 @@ double Equation::goldenSection()
 {
 	int  PreventInfiniteLoop = 200;	
 
-	const long double THRESHOLD = 1E-06;	
-	const double RATIO = 2 - ((1 + sqrt(5.0)) / 2);
+	const long double THRESHOLD = 1E-06;
+	const double gr = (sqrt(5.0) + 1) / 2;
 	
 	std::vector<double> min;
 	std::vector<double> max;
@@ -136,34 +136,37 @@ double Equation::goldenSection()
 	double a = min.back();
 	double b = max.front();
 
-	while ((abs(b - a) >= THRESHOLD)&&PreventInfiniteLoop)
+	double c = b - (b - a) / gr;
+	double d = a + (b - a) / gr;
+
+	while ((abs(c - d) >= THRESHOLD)&&PreventInfiniteLoop)
 	{
-
-		double c1 = a + (b - a)*(RATIO);
-		double c2 = a + (b - a)*(1-RATIO);
-
-		double fc1 = 0;
-		double fc2 = 0;
+		double fc = 0;
+		double fd = 0;
 		if (degree() == 1)
 		{
-			fc1 = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", c1)});
-			fc2 = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", c2)});
+			fc = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", c)});
+			fd = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", d)});
 		}
 		else if(degree()==2)
 		{
-			fc1 = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", c1), SubValueintoEq("y", c1)});
-			fc2 = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", c2), SubValueintoEq("y", c2)});
+			fc = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", c), SubValueintoEq("y", c)});
+			fd = calc(std::vector<SubValueintoEq>{SubValueintoEq("x", d), SubValueintoEq("y", d)});
 		}
 
 
-		if (fc1 < fc2) 
+		if (fc < fd) 
 		{
-			b = c2;
+			b = d;
 		}
 		else
 		{
-			a = c1;
+			a = c;
 		}	
+
+		c = b - (b - a) / gr;
+		d = a + (b - a) / gr;
+
 		PreventInfiniteLoop--;
 	}	
 
@@ -305,7 +308,7 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 				newPoints.clear();
 				Eq.VariableChange.clear();
 				Eq.domainChange.clear();	
-
+	
 				if ((powl(Points[1][0].value - Points[0][0].value, 2) + powl(Points[1][1].value - Points[0][1].value, 2)) < THRESHOLD)
 				{
 					result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
@@ -359,7 +362,15 @@ std::string Equation::Powell(std::vector<SubValueintoEq>& InitialPoints)
 			}
 
 			//--------------------------------------------------Print
-			Points.push_back(newPoints);			
+			Points.push_back(newPoints);		
+
+			if ((powl(Points[1][0].value - Points[0][0].value, 2) + powl(Points[1][1].value - Points[0][1].value, 2)) < THRESHOLD)
+			{
+				result << "[x,y] = [" << Points[1][0].value << "\t" << Points[1][1].value << "]\r\n";
+				result << "min = " << Eq.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", Points[1][0].value), SubValueintoEq("y", Points[1][1].value)}) << "\r\n";
+				return result.str();
+			}
+
 			result << "aplha= " << alpha << "\r\n";
 			result << "S= " << direction.back()[0] << "\t" << direction.back()[1] << "\r\n";
 			result << "x4 = " << Points.back()[0].value << "\t" << Points.back()[1].value << "\r\n\r\n";
@@ -821,7 +832,118 @@ std::string Equation::Conjugate_Gradient(std::vector<SubValueintoEq>& InitialPoi
 	}
 	else
 	{
+		double x1 = InitialPoints[0].value;
+		double y1 = InitialPoints[1].value;
+		double B;
+		double directionX;
+		double directionY;
+		double x2;
+		double y2;
+		double REdirX;
+		double REdirY;
+		Equation equ(this);
+		Equation DFx(this);
+		Equation DFy(this);
+		DFx.gradient("x");
+		DFy.gradient("y");
 
+		for (int i = 0; ; i++)
+		{			
+			if (i == 0)
+			{
+				directionX = -1.0 * DFx.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x1), SubValueintoEq(InitialPoints[1].name, y1)});
+				directionY = -1.0 * DFy.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x1), SubValueintoEq(InitialPoints[1].name, y1)});
+			}			
+			//..........................enter x1+direction*x
+			std::stringstream temp;
+			temp << x1;
+			if (directionX > 0)
+				temp << "+";
+			else
+				temp << "-";
+			temp << abs(directionX) << "*";
+			temp << "x";
+			equ.VariableChange.push_back(SubVariableintoEq(InitialPoints[0].name, temp.str()));
+			temp.str("");
+			//..........................change domain to  X/direction-x1/direction
+			double t = 1.0 / directionX;
+			temp << t << "*";
+			temp << "x";
+			if ((x1 < 0) ^ (t < 0))
+				temp << "+";
+			else
+				temp << "-";
+			temp << abs(x1*t);
+			equ.domainChange.push_back(SubVariableintoEq(InitialPoints[0].name, temp.str()));
+			temp.str("");
+
+			//..........................enter x1+direction*alpha
+			temp << y1;
+			if (directionY > 0)
+				temp << "+";
+			else
+				temp << "-";
+			temp << abs(directionY) << "*";
+			temp << "y";
+			equ.VariableChange.push_back(SubVariableintoEq(InitialPoints[1].name, temp.str()));
+			temp.str("");
+			//..........................change domain to  Y/direction-y1/direction
+			t = 1.0 / directionY;
+			temp << t << "*";
+			temp << "y";
+			if ((y1 < 0) ^ (t < 0))
+				temp << "+";
+			else
+				temp << "-";
+			temp << abs(y1*t);
+			equ.domainChange.push_back(SubVariableintoEq(InitialPoints[1].name, temp.str()));
+			temp.str("");
+			//.....................................................................................................
+			double alpha = equ.goldenSection();
+			
+			x2 = x1 + directionX * alpha;
+			y2 = y1 + directionY * alpha;
+			if (x2 > equ.range[0].max)
+				x2 = equ.range[0].max;
+			if (x2 < equ.range[0].min)
+				x2 = equ.range[0].min;
+			if (y2 > equ.range[1].max)
+				y2 = equ.range[1].max;
+			if (y2 < equ.range[1].min)
+				y2 = equ.range[1].min;
+
+			//print......................................................................
+			result << "Xi = [ " << x1 << " , " << y1 << " ]\r\n";
+			if (i != 0)
+			{
+				result << "BETA = " << B << "\r\n";
+			}
+			result << "Si = " << "[" << directionX << " , " << directionY << "]" << "\r\n" << "Alpha = " << alpha << "\r\n" << "Xi = [ " << x2 << " , " << y2 << " ]\r\n\r\n";
+			//
+			if (abs(equ.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x2), SubValueintoEq("y", y2)}) - equ.calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x1), SubValueintoEq("y", y1)})) < THRESHOLD || powl(x2 - x1, 2) + powl(y2 - y1, 2)< THRESHOLD || i == MAXIMUMLOOPCOUNT - 1) { break; }
+			
+			
+			double gx1= DFx.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x1), SubValueintoEq(InitialPoints[1].name, y1)});
+			double gy1= DFy.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x1), SubValueintoEq(InitialPoints[1].name, y1)});
+			double gx2= DFx.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x2), SubValueintoEq(InitialPoints[1].name, y2)});
+			double gy2= DFy.calc(std::vector<SubValueintoEq>{SubValueintoEq(InitialPoints[0].name, x2), SubValueintoEq(InitialPoints[1].name, y2)});
+
+			B = (gx2 * gx2 + gy2 * gy2) / (gx1 * gx1 + gy1 * gy1);
+						
+			if (abs(B) < THRESHOLD) break;
+
+			directionX = -gx2 + B * directionX;
+			directionY = -gy2 + B * directionY;
+
+			x1 = x2;
+			y1 = y2;
+
+			equ.domainChange.clear();
+			equ.VariableChange.clear();
+
+		}
+		result << "[x,y] = [" << x2 << " , " << y2 << "]\r\n";
+		result << "min = " << calc(std::vector<SubValueintoEq>{SubValueintoEq("x", x2), SubValueintoEq("y", y2)}) << "\r\n";
 
 	}
 	return result.str();
